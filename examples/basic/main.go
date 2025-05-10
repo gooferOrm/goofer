@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"reflect"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
