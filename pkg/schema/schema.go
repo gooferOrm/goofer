@@ -1,15 +1,33 @@
 package schema
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
-// Schema defines the database schema
-// It's similar to Prisma's schema.prisma file
-// but implemented in Go
+// Entity interface for model metadata
+type Entity interface {
+	TableName() string
+}
+
+// ORM tag parser constants
 const (
-	// Field types
+	TagName          = "orm"
+	PrimaryKeyOption = "primaryKey"
+	AutoIncrementOpt = "autoIncrement"
+	UniqueOption     = "unique"
+	IndexOption      = "index"
+	NotNullOption    = "notnull"
+	RelationOption   = "relation"
+	ForeignKeyOption = "foreignKey"
+	DefaultOption    = "default"
+	TypeOption       = "type"
+)
+
+// Field types
+const (
 	TypeString   = "string"
 	TypeInt      = "int"
 	TypeFloat    = "float"
@@ -18,53 +36,30 @@ const (
 	TypeEnum     = "enum"
 	TypeJson     = "json"
 	TypeBytes    = "bytes"
-
-	// Field constraints
-	ConstraintUnique = "unique"
-	ConstraintIndex  = "index"
-	ConstraintPK     = "primaryKey"
 )
 
-// Model represents a database model
-// Similar to Prisma's model definition
-// @model User {
-//   id        Int      @id @default(autoincrement())
-//   email     String   @unique
-//   name      String
-//   posts     Post[]   @relation("UserToPost")
-// }
-type Model struct {
-	Name        string
-	Fields      []Field
-	Relations   []Relation
-	Indexes     []Index
-	UniqueKeys  []UniqueKey
+// FieldMetadata contains parsed ORM tag information
+type FieldMetadata struct {
+	Name          string
+	DBName        string
+	Type          string
+	IsPrimaryKey  bool
+	IsAutoIncr    bool
+	IsUnique      bool
+	IsIndexed     bool
+	IsNullable    bool
+	Default       interface{}
+	Relation      *RelationMetadata
 }
 
-// Field represents a model field
-// Similar to Prisma's field definition
-type Field struct {
-	Name        string
-	Type        string
-	IsNullable  bool
-	IsUnique    bool
-	IsIndexed   bool
-	IsPK        bool
-	Default     interface{}
-	EnumValues  []string
+// RelationMetadata describes entity relationships
+type RelationMetadata struct {
+	Type       RelationType
+	Entity     reflect.Type
+	ForeignKey string
 }
 
-// Relation represents a model relation
-// Similar to Prisma's relation definition
-type Relation struct {
-	Name        string
-	Type        RelationType
-	Model       string
-	ForeignKey  string
-	Through     string
-}
-
-// RelationType defines the type of relation
+// RelationType defines relationship types
 type RelationType string
 
 const (
@@ -74,32 +69,201 @@ const (
 	ManyToMany   RelationType = "ManyToMany"
 )
 
-// Index represents a database index
-type Index struct {
+// EntityMetadata contains complete entity schema
+type EntityMetadata struct {
+	TableName   string
+	Fields      []FieldMetadata
+	PrimaryKey  *FieldMetadata
+	Relations   []RelationMetadata
+	Indexes     []IndexMetadata
+}
+
+// IndexMetadata describes database indexes
+type IndexMetadata struct {
 	Name    string
-	Fields  []string
+	Columns []string
 	Unique  bool
 }
 
-// UniqueKey represents a unique constraint
-type UniqueKey struct {
-	Name    string
-	Fields  []string
+// SchemaRegistry maintains entity metadata
+type SchemaRegistry struct {
+	entities map[reflect.Type]*EntityMetadata
 }
 
-// ParseModel parses a struct into a Model definition
-// This is similar to Prisma's schema parsing
-func ParseModel(entity interface{}) (*Model, error) {
-	model := &Model{
-		Name: reflect.TypeOf(entity).Name(),
+// NewSchemaRegistry creates a new schema registry
+func NewSchemaRegistry() *SchemaRegistry {
+	return &SchemaRegistry{
+		entities: make(map[reflect.Type]*EntityMetadata),
+	}
+}
+
+// Global registry instance
+var Registry = NewSchemaRegistry()
+
+// RegisterEntity analyzes and registers entity schema
+func (r *SchemaRegistry) RegisterEntity(entity Entity) error {
+	entityType := reflect.TypeOf(entity)
+	if entityType.Kind() == reflect.Ptr {
+		entityType = entityType.Elem()
 	}
 
-	// Parse struct fields
-	return model, nil
+	meta := &EntityMetadata{
+		TableName: entity.TableName(),
+	}
+
+	for i := 0; i < entityType.NumField(); i++ {
+		field := entityType.Field(i)
+		tag := field.Tag.Get(TagName)
+		if tag == "" || tag == "-" {
+			continue
+		}
+
+		fieldMeta, err := parseFieldTag(field, tag)
+		if err != nil {
+			return err
+		}
+
+		meta.Fields = append(meta.Fields, *fieldMeta)
+
+		if fieldMeta.IsPrimaryKey {
+			meta.PrimaryKey = fieldMeta
+		}
+
+		if fieldMeta.Relation != nil {
+			meta.Relations = append(meta.Relations, *fieldMeta.Relation)
+		}
+	}
+
+	r.entities[entityType] = meta
+	return nil
 }
 
-// ValidateModel validates the model schema
-func (m *Model) Validate() error {
-	// Similar to Prisma's schema validation
+// GetEntityMetadata retrieves metadata for an entity type
+func (r *SchemaRegistry) GetEntityMetadata(entityType reflect.Type) (*EntityMetadata, bool) {
+	if entityType.Kind() == reflect.Ptr {
+		entityType = entityType.Elem()
+	}
+	meta, exists := r.entities[entityType]
+	return meta, exists
+}
+
+// parseFieldTag converts ORM tags to metadata
+func parseFieldTag(field reflect.StructField, tag string) (*FieldMetadata, error) {
+	options := parseTagOptions(tag)
+	meta := &FieldMetadata{
+		Name:       field.Name,
+		DBName:     snakeCase(field.Name),
+		IsNullable: true, // Default to nullable
+	}
+
+	for _, opt := range options {
+		switch {
+		case opt == PrimaryKeyOption:
+			meta.IsPrimaryKey = true
+		case opt == AutoIncrementOpt:
+			meta.IsAutoIncr = true
+		case opt == UniqueOption:
+			meta.IsUnique = true
+		case opt == IndexOption:
+			meta.IsIndexed = true
+		case opt == NotNullOption:
+			meta.IsNullable = false
+		case strings.HasPrefix(opt, TypeOption+":"):
+			meta.Type = strings.TrimPrefix(opt, TypeOption+":")
+		case strings.HasPrefix(opt, DefaultOption+":"):
+			meta.Default = strings.TrimPrefix(opt, DefaultOption+":")
+		case strings.HasPrefix(opt, RelationOption+":"):
+			relType := strings.TrimPrefix(opt, RelationOption+":")
+			meta.Relation = &RelationMetadata{
+				Type: RelationType(relType),
+			}
+		case strings.HasPrefix(opt, ForeignKeyOption+":"):
+			if meta.Relation != nil {
+				meta.Relation.ForeignKey = strings.TrimPrefix(opt, ForeignKeyOption+":")
+			}
+		}
+	}
+
+	// Infer type from Go type if not specified
+	if meta.Type == "" {
+		meta.Type = inferSQLType(field.Type)
+	}
+
+	return meta, nil
+}
+
+// parseTagOptions splits tag string into options
+func parseTagOptions(tag string) []string {
+	return strings.Split(tag, ";")
+}
+
+// inferSQLType maps Go types to SQL types
+func inferSQLType(t reflect.Type) string {
+	switch t.Kind() {
+	case reflect.String:
+		return "VARCHAR(255)"
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return "INTEGER"
+	case reflect.Float32, reflect.Float64:
+		return "FLOAT"
+	case reflect.Bool:
+		return "BOOLEAN"
+	case reflect.Struct:
+		if t.String() == "time.Time" {
+			return "TIMESTAMP"
+		}
+	case reflect.Slice:
+		if t.Elem().Kind() == reflect.Uint8 {
+			return "BLOB"
+		}
+	}
+	return "TEXT"
+}
+
+// snakeCase converts CamelCase to snake_case
+func snakeCase(s string) string {
+	var result strings.Builder
+	for i, r := range s {
+		if i > 0 && 'A' <= r && r <= 'Z' {
+			result.WriteByte('_')
+		}
+		result.WriteRune(r)
+	}
+	return strings.ToLower(result.String())
+}
+
+// ValidateEntityMetadata checks if entity metadata is valid
+func ValidateEntityMetadata(meta *EntityMetadata) error {
+	if meta.TableName == "" {
+		return errors.New("entity must have a table name")
+	}
+
+	if len(meta.Fields) == 0 {
+		return errors.New("entity must have at least one field")
+	}
+
+	if meta.PrimaryKey == nil {
+		return errors.New("entity must have a primary key")
+	}
+
 	return nil
+}
+
+// GetEntityType returns the reflect.Type of an entity
+func GetEntityType(entity Entity) reflect.Type {
+	t := reflect.TypeOf(entity)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	return t
+}
+
+// GetAllEntities returns all registered entities
+func (r *SchemaRegistry) GetAllEntities() []*EntityMetadata {
+	var entities []*EntityMetadata
+	for _, meta := range r.entities {
+		entities = append(entities, meta)
+	}
+	return entities
 }
