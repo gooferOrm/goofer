@@ -422,7 +422,7 @@ func (r *Repository[T]) Transaction(fn func(*Repository[T]) error) error {
 
 	// Create a new repository with the transaction
 	txRepo := &Repository[T]{
-		db:       r.db, // Keep the original DB for metadata
+		db:       tx, // Use the transaction instead of the original DB
 		dialect:  r.dialect,
 		metadata: r.metadata,
 		ctx:      r.ctx,

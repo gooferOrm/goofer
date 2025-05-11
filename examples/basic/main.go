@@ -8,9 +8,9 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/gooferOrm/goofer/pkg/dialect"
-	"github.com/gooferOrm/goofer/pkg/repository"
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/goferOrm/goofer/pkg/dialect"
+	"github.com/goferOrm/goofer/pkg/repository"
+	"github.com/goferOrm/goofer/pkg/schema"
 )
 
 // User entity
