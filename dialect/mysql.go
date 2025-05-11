@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // MySQLDialect implements the Dialect interface for MySQL

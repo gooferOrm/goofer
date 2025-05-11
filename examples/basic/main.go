@@ -8,16 +8,16 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/gooferOrm/goofer/pkg/dialect"
-	"github.com/gooferOrm/goofer/pkg/repository"
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/dialect"
+	"github.com/gooferOrm/goofer/repository"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // User entity
 type User struct {
-	ID        uint      `orm:"primaryKey;autoIncrement" validate:"required"`
-	Name      string    `orm:"type:varchar(255);notnull" validate:"required"`
-	Email     string    `orm:"unique;type:varchar(255);notnull" validate:"required,email"`
+	ID        uint      `orm:"primaryKey;autoIncrement"`
+	Name      string    `orm:"type:varchar(255);notnull"`
+	Email     string    `orm:"unique;type:varchar(255);notnull"`
 	CreatedAt time.Time `orm:"type:timestamp;default:CURRENT_TIMESTAMP"`
 	Posts     []Post    `orm:"relation:OneToMany;foreignKey:UserID"`
 }
@@ -29,10 +29,10 @@ func (User) TableName() string {
 
 // Post entity
 type Post struct {
-	ID        uint      `orm:"primaryKey;autoIncrement" validate:"required"`
-	Title     string    `orm:"type:varchar(255);notnull" validate:"required"`
-	Content   string    `orm:"type:text" validate:"required"`
-	UserID    uint      `orm:"index;notnull" validate:"required"`
+	ID        uint      `orm:"primaryKey;autoIncrement"`
+	Title     string    `orm:"type:varchar(255);notnull"`
+	Content   string    `orm:"type:text"`
+	UserID    uint      `orm:"index;notnull"`
 	CreatedAt time.Time `orm:"type:timestamp;default:CURRENT_TIMESTAMP"`
 	User      *User     `orm:"relation:ManyToOne;foreignKey:UserID"`
 }
@@ -61,9 +61,16 @@ func main() {
 		log.Fatalf("Failed to register Post entity: %v", err)
 	}
 
-	// Create tables
-	userMeta, _ := schema.Registry.GetEntityMetadata(schema.GetEntityType(User{}))
-	postMeta, _ := schema.Registry.GetEntityMetadata(schema.GetEntityType(Post{}))
+	// Get entity metadata
+	userMeta, ok := schema.Registry.GetEntityMetadata(schema.GetEntityType(User{}))
+	if !ok {
+		log.Fatal("Failed to get User entity metadata")
+	}
+
+	postMeta, ok := schema.Registry.GetEntityMetadata(schema.GetEntityType(Post{}))
+	if !ok {
+		log.Fatal("Failed to get Post entity metadata")
+	}
 
 	// Print the SQL for table creation
 	userSQL := sqliteDialect.CreateTableSQL(userMeta)
@@ -164,10 +171,8 @@ func main() {
 		}
 
 		fmt.Printf("Created user in transaction with ID: %d\n", newUser.ID)
-
 		// Simulate an error to rollback the transaction
 		// return errors.New("simulated error")
-
 		return nil
 	})
 

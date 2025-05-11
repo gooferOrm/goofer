@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	validator "github.com/go-playground/validator/v10"
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // Validator is a wrapper around go-playground/validator

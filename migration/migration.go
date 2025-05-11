@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gooferOrm/goofer/pkg/repository"
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/repository"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // Migration represents a database migration

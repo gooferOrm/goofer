@@ -8,15 +8,25 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // Dialect interface for database-specific implementations
 type Dialect interface {
+	// Placeholder returns the placeholder for a parameter at the given index
 	Placeholder(int) string
+
+	// QuoteIdentifier quotes an identifier (table name, column name)
 	QuoteIdentifier(string) string
+
+	// DataType maps a field metadata to a database-specific type
 	DataType(field schema.FieldMetadata) string
+
+	// CreateTableSQL generates SQL to create a table for the entity
 	CreateTableSQL(*schema.EntityMetadata) string
+
+	// Name returns the name of the dialect
+	Name() string
 }
 
 // DBExecutor is an interface that both *sql.DB and *sql.Tx implement
