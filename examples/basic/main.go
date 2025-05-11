@@ -51,7 +51,7 @@ func main() {
 	defer db.Close()
 
 	// Create dialect
-	sqliteDialect := &dialect.SQLiteDialect{}
+	sqliteDialect := dialect.NewSQLiteDialect()
 
 	// Register entities
 	if err := schema.Registry.RegisterEntity(User{}); err != nil {

@@ -26,11 +26,35 @@ type Dialect interface {
 }
 
 // BaseDialect provides common functionality for dialects
-type BaseDialect struct{}
+type BaseDialect struct{
+	Dialect
+}
 
 // QuoteIdentifier quotes an identifier with double quotes
 func (d *BaseDialect) QuoteIdentifier(name string) string {
 	return fmt.Sprintf(`"%s"`, name)
+}
+
+// DataType provides a default implementation that can be overridden by specific dialects
+func (d *BaseDialect) DataType(field schema.FieldMetadata) string {
+	switch field.Type {
+	case "varchar":
+		return "TEXT"
+	case "int", "integer":
+		return "INTEGER"
+	case "float", "double":
+		return "REAL"
+	case "boolean":
+		return "INTEGER"
+	case "datetime", "timestamp":
+		return "TEXT"
+	case "json":
+		return "TEXT"
+	case "blob":
+		return "BLOB"
+	default:
+		return "TEXT"
+	}
 }
 
 // CreateTableSQL generates SQL to create a table for the entity

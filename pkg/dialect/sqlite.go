@@ -9,7 +9,14 @@ import (
 
 // SQLiteDialect implements the Dialect interface for SQLite
 type SQLiteDialect struct {
-	BaseDialect
+	*BaseDialect
+}
+
+// NewSQLiteDialect creates a new SQLite dialect instance
+func NewSQLiteDialect() *SQLiteDialect {
+	return &SQLiteDialect{
+		BaseDialect: &BaseDialect{},
+	}
 }
 
 // Name returns the name of the dialect
