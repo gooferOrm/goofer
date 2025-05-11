@@ -44,7 +44,7 @@ func (Post) TableName() string {
 
 func main() {
 	// Open SQLite database
-	db, err := sql.Open("sqlite3", ":memory:")
+	db, err := sql.Open("sqlite3", "./db.db")
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
 	}
