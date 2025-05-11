@@ -8,9 +8,9 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/goferOrm/goofer/pkg/dialect"
-	"github.com/goferOrm/goofer/pkg/repository"
-	"github.com/goferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/pkg/dialect"
+	"github.com/gooferOrm/goofer/pkg/repository"
+	"github.com/gooferOrm/goofer/pkg/schema"
 )
 
 // User entity
@@ -65,13 +65,22 @@ func main() {
 	userMeta, _ := schema.Registry.GetEntityMetadata(schema.GetEntityType(User{}))
 	postMeta, _ := schema.Registry.GetEntityMetadata(schema.GetEntityType(Post{}))
 
+	// Print the SQL for table creation
+	userSQL := sqliteDialect.CreateTableSQL(userMeta)
+	postSQL := sqliteDialect.CreateTableSQL(postMeta)
+
+	fmt.Println("User table SQL:")
+	fmt.Println(userSQL)
+	fmt.Println("Post table SQL:")
+	fmt.Println(postSQL)
+
 	// Create tables
-	_, err = db.Exec(sqliteDialect.CreateTableSQL(userMeta))
+	_, err = db.Exec(userSQL)
 	if err != nil {
 		log.Fatalf("Failed to create users table: %v", err)
 	}
 
-	_, err = db.Exec(sqliteDialect.CreateTableSQL(postMeta))
+	_, err = db.Exec(postSQL)
 	if err != nil {
 		log.Fatalf("Failed to create posts table: %v", err)
 	}

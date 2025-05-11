@@ -222,6 +222,9 @@ func inferSQLType(t reflect.Type) string {
 
 // snakeCase converts CamelCase to snake_case
 func snakeCase(s string) string {
+	// Special case for ID and similar acronyms
+	s = strings.ReplaceAll(s, "ID", "Id")
+
 	var result strings.Builder
 	for i, r := range s {
 		if i > 0 && 'A' <= r && r <= 'Z' {

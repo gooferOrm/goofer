@@ -19,9 +19,16 @@ type Dialect interface {
 	CreateTableSQL(*schema.EntityMetadata) string
 }
 
+// DBExecutor is an interface that both *sql.DB and *sql.Tx implement
+type DBExecutor interface {
+	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
+}
+
 // Repository provides type-safe database operations
 type Repository[T schema.Entity] struct {
-	db       *sql.DB
+	db       DBExecutor
 	dialect  Dialect
 	metadata *schema.EntityMetadata
 	ctx      context.Context
@@ -330,7 +337,15 @@ func (r *Repository[T]) insert(entity *T) error {
 		// Set the ID on the entity
 		pkField := val.FieldByName(meta.PrimaryKey.Name)
 		if pkField.CanSet() {
-			pkField.SetInt(id)
+			// Handle different types of primary key fields
+			switch pkField.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				pkField.SetInt(id)
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				pkField.SetUint(uint64(id))
+			default:
+				return fmt.Errorf("unsupported primary key type: %s", pkField.Type())
+			}
 		}
 	} else {
 		// Just execute without getting ID
@@ -415,14 +430,20 @@ func (r *Repository[T]) DeleteByID(id interface{}) error {
 
 // Transaction executes a database transaction
 func (r *Repository[T]) Transaction(fn func(*Repository[T]) error) error {
-	tx, err := r.db.BeginTx(r.ctx, nil)
+	// We need to cast r.db to *sql.DB to use BeginTx
+	db, ok := r.db.(*sql.DB)
+	if !ok {
+		return errors.New("cannot start a transaction: db is not a *sql.DB")
+	}
+
+	tx, err := db.BeginTx(r.ctx, nil)
 	if err != nil {
 		return err
 	}
 
 	// Create a new repository with the transaction
 	txRepo := &Repository[T]{
-		db:       tx, // Use the transaction instead of the original DB
+		db:       tx, // Use the transaction as a DBExecutor
 		dialect:  r.dialect,
 		metadata: r.metadata,
 		ctx:      r.ctx,
