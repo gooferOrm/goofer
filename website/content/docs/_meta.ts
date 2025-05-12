@@ -1,5 +1,3 @@
-import { features } from "process";
-
 export default {
 	index: "Home",
 	"getting-started": "Getting Started",
