@@ -8,9 +8,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/gooferOrm/goofer/pkg/dialect"
-	"github.com/gooferOrm/goofer/pkg/repository"
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/dialect"
+	"github.com/gooferOrm/goofer/repository"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // User entity
