@@ -28,7 +28,7 @@ RUN go run github.com/gooferOrm/goofer prefetch
 
 COPY . ./
 
-# generate the Prisma Client Go client
+# generate the gooferOrm client
 RUN go run github.com/gooferOrm/goofer generate
 # or, if you use go generate to run the generator, use the following line instead
 # RUN go generate ./...
@@ -59,7 +59,7 @@ RUN go mod download
 RUN go run github.com/gooferOrm/goofer prefetch
 
 COPY ./ ./
-# generate the Prisma Client Go client
+# generate the gooferOrm client
 RUN go run github.com/gooferOrm/goofer generate
 # or, if you use go generate to run the generator, use the following line instead
 # RUN go generate ./...

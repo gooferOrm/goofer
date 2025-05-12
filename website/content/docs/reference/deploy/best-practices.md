@@ -2,13 +2,13 @@
 
 ## Best practices
 
-Prisma Client Go needs to generate code to work. This means that you need to run the generator before you can use it. We
+gooferOrm needs to generate code to work. This means that you need to run the generator before you can use it. We
 recommend to use Go's built-in [`go generate`](https://blog.golang.org/generate) to run the generator.
 
 ### Set up go generate
 
 While this step is not required, we recommend to use [`go generate`](https://blog.golang.org/generate) to simplify
-generating the Prisma Client Go client. To do so, you can just put the following line into a go file, and then run go
+generating the gooferOrm client. To do so, you can just put the following line into a go file, and then run go
 generate so `go run github.com/gooferOrm/goofer generate` and any other generate commands you run will get
 executed.
 
@@ -28,4 +28,4 @@ Now, run `go generate`:
 go generate ./...
 ```
 
-Your Prisma Client Go code is now generated.
+Your gooferOrm code is now generated.

@@ -6,8 +6,8 @@ import { Pagination } from "./pagination";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "Prisma Client Go Blog",
-	description: "Blog posts about Prisma Client Go",
+	title: "gooferOrm Blog",
+	description: "Blog posts about gooferOrm",
 };
 
 async function getPosts(page: number) {
@@ -33,7 +33,7 @@ export default async function Blog({
 
 	return (
 		<section className="mx-auto my-8 max-w-3xl px-4 tracking-normal md:px-8 lg:mt-10 dark:text-white">
-			<h1 className="my-4 text-4xl font-black">Prisma Client Go Blog</h1>
+			<h1 className="my-4 text-4xl font-black">gooferOrm Blog</h1>
 			<ul>
 				{posts.map((article: any) => (
 					<ArticleCard key={article.id} article={article} />

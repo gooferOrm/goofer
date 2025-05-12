@@ -8,12 +8,12 @@ import Analytics from "./analytics";
 
 export const metadata = {
 	title: {
-		template: "%s – Prisma Client Go",
-		default: "Prisma Client Go",
+		template: "%s – gooferOrm",
+		default: "gooferOrm",
 	},
 	metadataBase: new URL("https://goprisma.org"),
 	description:
-		"Prisma Client Go is an auto-generated and fully type-safe database client",
+		"gooferOrm is an auto-generated and fully type-safe database client",
 	applicationName: "Go Prisma",
 	icons: [
 		{

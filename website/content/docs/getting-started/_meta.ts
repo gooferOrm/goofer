@@ -1,6 +1,10 @@
 export default {
 	index: "",
 	quickstart: "",
-	advanced: "",
-	cli: "",
+	advanced: {
+		display: "hidden",
+	},
+	cli: {
+		display: "hidden",
+	},
 };
