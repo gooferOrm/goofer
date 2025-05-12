@@ -5,7 +5,7 @@ Gofer ORM is a lightweight, type-safe ORM (Object-Relational Mapping) library fo
 
 ## Core Components
 
-### 1. Schema Package (`pkg/schema/`)
+### 1. Schema Package (`/schema/`)
 The schema package is responsible for:
 - Managing entity metadata (tables, columns, relationships)
 - Parsing struct tags to extract ORM configuration
@@ -18,7 +18,7 @@ Key types:
 - `RelationMetadata`: Describes relationships between entities
 - `SchemaRegistry`: Global registry of all entity metadata
 
-### 2. Dialect Package (`pkg/dialect/`)
+### 2. Dialect Package (`/dialect/`)
 Handles database-specific SQL generation and differences between database engines.
 
 Key components:
@@ -30,7 +30,7 @@ Key components:
   - Identifier quoting
   - Placeholder generation
 
-### 3. Repository Package (`pkg/repository/`)
+### 3. Repository Package (`/repository/`)
 Provides a generic repository pattern implementation for database operations.
 
 Key features:
@@ -40,7 +40,7 @@ Key features:
 - Query building
 - Relationship handling
 
-### 4. Validation Package (`pkg/validation/`)
+### 4. Validation Package (`/validation/`)
 Integrates with the `go-playground/validator` package to provide validation for entities.
 
 ## How It Works
