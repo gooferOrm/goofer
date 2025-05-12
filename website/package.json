@@ -1,4 +1,5 @@
 {
+	"name":"gooferorm",
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"start": "next start",

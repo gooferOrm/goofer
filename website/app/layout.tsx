@@ -61,19 +61,21 @@ export default async function RootLayout({ children }) {
 						}
 						navbar={
 							<Navbar
-								logo={<div>Go Prisma</div>}
+								logo={<div>GooferOrm</div>}
 								chatLink="https://discord.gg/er3ZbmYHDk"
 								projectLink="https://github.com/gooferOrm/goofer"
 							/>
 						}
 						editLink="Edit this page on GitHub"
-						docsRepositoryBase="https://github.com/gooferOrm/goofer/tree/main/docs"
+						docsRepositoryBase="https://github.com/gooferOrm/goofer/tree/main/website"
 						sidebar={{ defaultMenuCollapseLevel: 1 }}
 						pageMap={await getPageMap()}
 					>
 						{children}
+
 						{/* vercel analytics */}
-					<Analytics/>
+						<Analytics/>
+						
 					</Layout>
 				</CustomAnalytics>
 			</body>

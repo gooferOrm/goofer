@@ -47,7 +47,7 @@ a.btnSecondary {
 
 a.btnPrimary,
 a.btnSecondary {
-	background: linear-gradient(to bottom, #238aff, #0077ff);
+	background: linear-gradient(to bottom, #ffbd23, #ffaa00);
 	color: white;
 	text-shadow: 0 1px 1px #00387838;
 	box-shadow: 0 1px 2px #00295738;
@@ -81,7 +81,7 @@ a.btnSecondary:active {
 }
 
 a.btnPrimary:hover {
-	box-shadow: 0 5px 30px -10px #0078ffab;
+	box-shadow: 0 5px 30px -10px #ffd900ab;
 	filter: brightness(1.05);
 }
 
