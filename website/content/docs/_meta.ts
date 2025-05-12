@@ -1,8 +1,11 @@
 export default {
 	index: "Home",
 	"getting-started": "Getting Started",
-	walkthrough: "Walkthrough",
+	examples: "Examples",
+	features: "Features",
 	reference: "Reference",
+	cli: "CLI",
+	deploy: "Deployment",
 	help: "Help",
 	community: "Community",
 	README: {

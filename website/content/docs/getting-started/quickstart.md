@@ -1,223 +1,242 @@
 # Quickstart
 
-The fastest way to get started is to [clone the quickstart repository](#use-the-quickstart-repository).
-Alternatively, you can go through the [manual below to create a new project from scratch](#manual-setup).
+This quickstart guide will help you set up a simple Goofer ORM project with a User and Post model, demonstrating basic CRUD operations and relationships.
 
-## Use the quickstart repository
-
-Clone the quickstart repository:
-
-```shell
-git clone git@github.com:steebchen/prisma-go-demo.git && cd prisma-go-demo
-```
-
-Create the pre-defined SQLite database and generate the Go client:
-
-```shell
-go run github.com/gooferOrm/goofer db push
-```
-
-Finally, run the simple main program at `main.go`:
-
-```shell
-go run .
-# created post: {
-#   "id": "ckfnrp7ec0000oh9kygil9s94",
-#   "createdAt": "2020-09-29T09:37:44.628Z",
-#   "updatedAt": "2020-09-29T09:37:44.628Z",
-#   "title": "Hi from Prisma!",
-#   "published": true,
-#   "desc": "Prisma is a database toolkit and makes databases easy."
-# }
-# post: {
-#   "id": "ckfnrp7ec0000oh9kygil9s94",
-#   "createdAt": "2020-09-29T09:37:44.628Z",
-#   "updatedAt": "2020-09-29T09:37:44.628Z",
-#   "title": "Hi from Prisma!",
-#   "published": true,
-#   "desc": "Prisma is a database toolkit and makes databases easy."
-# }
-# The posts's title is: Prisma is a database toolkit and makes databases easy.
-```
-
-### Next steps
-
-We just scratched the surface of what you can do. Read the [advanced tutorial](advanced.md) to learn about more
-complex queries and how you can query for relations.
-
-You can also read the full docs at [GoPrisma](https://goprisma.org/docs).
-
-## Manual setup
-
-### Initialize a new Go project
+## Initialize a new Go project
 
 If you don't have a Go project yet, initialize one using Go modules:
 
-```shell script
-mkdir demo && cd demo
-go mod init demo
+```shell
+mkdir goofer-demo && cd goofer-demo
+go mod init goofer-demo
 ```
 
-### Get Prisma Client Go
+## Install Goofer ORM
 
-Install the Go module in your project:
+Install the Goofer ORM package:
 
-```shell script
+```shell
 go get github.com/gooferOrm/goofer
 ```
 
-### Prepare your Prisma database schema
+You'll also need a database driver. For this quickstart, we'll use SQLite:
 
-Prepare your database schema in a `schema.prisma` file. For example, a simple schema with a sqlite database and Prisma
-Client Go as a generator with two models would look like this:
-
-```prisma
-datasource db {
-  // could be postgresql or mysql
-  provider = "sqlite"
-  url      = "file:dev.db"
-}
-
-generator db {
-  provider = "go run github.com/gooferOrm/goofer"
-}
-
-model Post {
-  id        String   @default(cuid()) @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  published Boolean
-  desc      String?
-}
+```shell
+go get github.com/mattn/go-sqlite3
 ```
 
-Next, run `db push` to synchronize your schema with your database. It will also create the database if it doesn't exist.
+## Create your models
 
-```shell script
-# sync the database with your schema
-go run github.com/gooferOrm/goofer db push
-# The Prisma Client Go client is automatically generated in your project.
-# You can re-run this command any time to sync your schema with the database.
-```
-
-If you just want to re-generate the client, run `go run github.com/gooferOrm/goofer generate`.
-
-To create a migration for your production database, use the Prisma migration
-tool [`migrate`](https://www.prisma.io/docs/concepts/components/prisma-migrate) to create and migrate your database.
-
-## Usage
-
-Create a file `main.go` (and adapt the import to the db folder if needed):
+Create a file named `models.go` with the following content:
 
 ```go
 package main
 
 import (
-  "context"
-  "encoding/json"
-  "fmt"
+	"time"
+)
 
-  // adapt "demo" to your module name if it differs
-  "demo/db"
+// User entity
+type User struct {
+	ID        uint      `orm:"primaryKey;autoIncrement" validate:"required"`
+	Name      string    `orm:"type:varchar(255);notnull" validate:"required"`
+	Email     string    `orm:"unique;type:varchar(255);notnull" validate:"required,email"`
+	CreatedAt time.Time `orm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	Posts     []Post    `orm:"relation:OneToMany;foreignKey:UserID"`
+}
+
+// TableName returns the table name for the User entity
+func (User) TableName() string {
+	return "users"
+}
+
+// Post entity
+type Post struct {
+	ID        uint      `orm:"primaryKey;autoIncrement" validate:"required"`
+	Title     string    `orm:"type:varchar(255);notnull" validate:"required"`
+	Content   string    `orm:"type:text" validate:"required"`
+	UserID    uint      `orm:"index;notnull" validate:"required"`
+	CreatedAt time.Time `orm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	User      *User     `orm:"relation:ManyToOne;foreignKey:UserID"`
+}
+
+// TableName returns the table name for the Post entity
+func (Post) TableName() string {
+	return "posts"
+}
+```
+
+## Create your main application
+
+Create a file named `main.go` with the following content:
+
+```go
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	"log"
+	"time"
+
+	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/gooferOrm/goofer/pkg/dialect"
+	"github.com/gooferOrm/goofer/pkg/repository"
+	"github.com/gooferOrm/goofer/pkg/schema"
 )
 
 func main() {
-  if err := run(); err != nil {
-    panic(err)
-  }
-}
+	// Open SQLite database
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		log.Fatalf("Failed to open database: %v", err)
+	}
+	defer db.Close()
 
-func run() error {
-  client := db.NewClient()
-  if err := client.Prisma.Connect(); err != nil {
-    return err
-  }
+	// Create dialect
+	sqliteDialect := &dialect.SQLiteDialect{}
 
-  defer func() {
-    if err := client.Prisma.Disconnect(); err != nil {
-      panic(err)
-    }
-  }()
+	// Register entities
+	if err := schema.Registry.RegisterEntity(User{}); err != nil {
+		log.Fatalf("Failed to register User entity: %v", err)
+	}
+	if err := schema.Registry.RegisterEntity(Post{}); err != nil {
+		log.Fatalf("Failed to register Post entity: %v", err)
+	}
 
-  ctx := context.Background()
+	// Create tables
+	userMeta, _ := schema.Registry.GetEntityMetadata(schema.GetEntityType(User{}))
+	postMeta, _ := schema.Registry.GetEntityMetadata(schema.GetEntityType(Post{}))
 
-  // create a post
-  createdPost, err := client.Post.CreateOne(
-    db.Post.Title.Set("Hi from Prisma!"),
-    db.Post.Published.Set(true),
-    db.Post.Desc.Set("Prisma is a database toolkit and makes databases easy."),
-  ).Exec(ctx)
-  if err != nil {
-    return err
-  }
+	// Create tables
+	_, err = db.Exec(sqliteDialect.CreateTableSQL(userMeta))
+	if err != nil {
+		log.Fatalf("Failed to create users table: %v", err)
+	}
 
-  result, _ := json.MarshalIndent(createdPost, "", "  ")
-  fmt.Printf("created post: %s\n", result)
+	_, err = db.Exec(sqliteDialect.CreateTableSQL(postMeta))
+	if err != nil {
+		log.Fatalf("Failed to create posts table: %v", err)
+	}
 
-  // find a single post
-  post, err := client.Post.FindUnique(
-    db.Post.ID.Equals(createdPost.ID),
-  ).Exec(ctx)
-  if err != nil {
-    return err
-  }
+	// Create repositories
+	userRepo := repository.NewRepository[User](db, sqliteDialect)
+	postRepo := repository.NewRepository[Post](db, sqliteDialect)
 
-  result, _ = json.MarshalIndent(post, "", "  ")
-  fmt.Printf("post: %s\n", result)
+	// Create a user
+	user := &User{
+		Name:  "John Doe",
+		Email: "john@example.com",
+	}
 
-  // for optional/nullable values, you need to check the function and create two return values
-  // `desc` is a string, and `ok` is a bool whether the record is null or not. If it's null,
-  // `ok` is false, and `desc` will default to Go's default values; in this case an empty string (""). Otherwise,
-  // `ok` is true and `desc` will be "my description".
-  desc, ok := post.Desc()
-  if !ok {
-    return fmt.Errorf("post's description is null")
-  }
+	// Save the user
+	if err := userRepo.Save(user); err != nil {
+		log.Fatalf("Failed to save user: %v", err)
+	}
 
-  fmt.Printf("The posts's description is: %s\n", desc)
+	fmt.Printf("Created user with ID: %d\n", user.ID)
 
-  return nil
+	// Create a post
+	post := &Post{
+		Title:   "Hello, Goofer ORM!",
+		Content: "This is my first post using Goofer ORM.",
+		UserID:  user.ID,
+	}
+
+	// Save the post
+	if err := postRepo.Save(post); err != nil {
+		log.Fatalf("Failed to save post: %v", err)
+	}
+
+	fmt.Printf("Created post with ID: %d\n", post.ID)
+
+	// Find the user by ID
+	foundUser, err := userRepo.FindByID(user.ID)
+	if err != nil {
+		log.Fatalf("Failed to find user: %v", err)
+	}
+
+	fmt.Printf("Found user: %s (%s)\n", foundUser.Name, foundUser.Email)
+
+	// Find posts by user ID
+	posts, err := postRepo.Find().Where("user_id = ?", user.ID).All()
+	if err != nil {
+		log.Fatalf("Failed to find posts: %v", err)
+	}
+
+	fmt.Printf("Found %d posts by user %s:\n", len(posts), foundUser.Name)
+	for _, p := range posts {
+		fmt.Printf("- %s: %s\n", p.Title, p.Content)
+	}
+
+	// Update the user
+	foundUser.Name = "Jane Doe"
+	if err := userRepo.Save(foundUser); err != nil {
+		log.Fatalf("Failed to update user: %v", err)
+	}
+
+	fmt.Printf("Updated user name to: %s\n", foundUser.Name)
+
+	// Transaction example
+	err = userRepo.Transaction(func(txRepo *repository.Repository[User]) error {
+		// Create a new user in the transaction
+		newUser := &User{
+			Name:  "Transaction User",
+			Email: "tx@example.com",
+		}
+
+		// Save the user in the transaction
+		if err := txRepo.Save(newUser); err != nil {
+			return err
+		}
+
+		fmt.Printf("Created user in transaction with ID: %d\n", newUser.ID)
+
+		// Uncomment to simulate an error and rollback the transaction
+		// return errors.New("simulated error")
+
+		return nil
+	})
+
+	if err != nil {
+		log.Printf("Transaction failed: %v", err)
+	} else {
+		fmt.Println("Transaction committed successfully")
+	}
 }
 ```
 
-make sure your go.mod is up-to-date:
+## Run your application
 
-```
+Run your application with:
+
+```shell
 go mod tidy
-```
-
-and then run it:
-
-```shell script
 go run .
 ```
 
+You should see output similar to:
+
 ```
-❯ go run .
-created post: {
-  "id": "ckfnrp7ec0000oh9kygil9s94",
-  "createdAt": "2020-09-29T09:37:44.628Z",
-  "updatedAt": "2020-09-29T09:37:44.628Z",
-  "title": "Hi from Prisma!",
-  "published": true,
-  "desc": "Prisma is a database toolkit and makes databases easy."
-}
-post: {
-  "id": "ckfnrp7ec0000oh9kygil9s94",
-  "createdAt": "2020-09-29T09:37:44.628Z",
-  "updatedAt": "2020-09-29T09:37:44.628Z",
-  "title": "Hi from Prisma!",
-  "published": true,
-  "desc": "Prisma is a database toolkit and makes databases easy."
-}
-The posts's title is: Prisma is a database toolkit and makes databases easy.
+Created user with ID: 1
+Created post with ID: 1
+Found user: John Doe (john@example.com)
+Found 1 posts by user John Doe:
+- Hello, Goofer ORM!: This is my first post using Goofer ORM.
+Updated user name to: Jane Doe
+Created user in transaction with ID: 2
+Transaction committed successfully
 ```
 
-### Next steps
+## Next steps
 
-Read more about [using the Go CLI](cli.md) for Prisma CLI commands such as `generate`, `migrate`, `db`,
-and `introspect`.
+This quickstart demonstrated the basics of Goofer ORM. Here are some next steps to explore:
 
-We just scratched the surface of what you can do. Read the [advanced tutorial](advanced.md) to learn about more
-complex queries and how you can query for relations.
+- Learn about [entity relationships](../examples/relationships) in depth
+- Explore [migrations](../reference/features/migrations) for schema evolution
+- Check out the [CLI](../cli) for automation
+- Dive into [advanced queries](../examples/queries) for more complex data access
+- Learn about [validation](../reference/features/validation) for data integrity
+
+Goofer ORM is designed to make working with databases in Go a pleasant experience. Enjoy building with type-safe, relationship-aware database access!

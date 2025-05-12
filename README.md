@@ -34,9 +34,9 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/gooferOrm/goofer/pkg/dialect"
-	"github.com/gooferOrm/goofer/pkg/repository"
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/dialect"
+	"github.com/gooferOrm/goofer/repository"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // User entity
@@ -259,7 +259,7 @@ func migrateV1ToV2(db *sql.DB, dialect dialect.Dialect) error {
         dialect.QuoteIdentifier("users"),
         dialect.QuoteIdentifier("age"),
         "INTEGER")
-    
+
     _, err := db.Exec(sql)
     return err
 }
@@ -276,18 +276,18 @@ Implement the `Validate()` method on your entities for custom validation:
 func (u *User) Validate() error {
     // Create a validator
     validator := validation.NewValidator()
-    
+
     // Validate using struct tags
     errors, err := validator.ValidateEntity(u)
     if err != nil {
         return err
     }
-    
+
     // Additional custom validation
     if u.Role == "admin" && u.Age < 18 {
         return fmt.Errorf("admin users must be at least 18 years old")
     }
-    
+
     return nil
 }
 ```

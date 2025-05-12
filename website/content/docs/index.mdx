@@ -1,23 +1,34 @@
 import { Callout, Cards } from "nextra/components";
 
-# Prisma Go Client Docs
+# Goofer ORM Docs
 
-### Typesafe database access for Go
+### Type-safe database ORM for Go
 
-**Welcome to the Prisma Go client’s docs!**
+**Welcome to the Goofer ORM documentation!**
 
-You'll find everything you need here to get work with the Prisma Go client.
-If you can't find anything or have any questions, please [open an issue](https://github.com/gooferOrm/goofer/issues/new/choose)!
+Goofer is a powerful, type-safe ORM for Go that gives your structs a life of their own with relationships, migrations, and zero drama. You'll find everything you need here to get started and make the most of Goofer ORM's features.
+
+If you can't find what you're looking for or have any questions, please [open an issue](https://github.com/gooferOrm/goofer/issues/new/choose)!
 
 You can always use the search in the top right corner or press `CMD+K` / `CTRL+K` to look for anything specific.
 
 <Callout type="info" emoji="ℹ️">
-	<b>Sponsors & Consulting</b> I'm looking for
-	[sponsors](https://github.com/sponsors/steebchen) to be able to work on the Go
-	client full time. I also offer consulting to answer all your concerns and
-	questions, help you set everything up and more. [Get in
-	touch!](mailto:contact@luca-steeb.com?subject=Prisma%20Go%20Client%20Consulting)
+	<b>Goofer ORM</b> is designed to provide a seamless developer experience with type safety, relationship modeling, and minimal boilerplate. Stop hand-writing SQL like it's 1999 and let your structs take center stage!
 </Callout>
+
+## Features
+
+- **Type-safe**: Fully leverages Go's type system with generics
+- **Zero drama**: Simple, intuitive API with minimal boilerplate
+- **Relationships**: Support for one-to-one, one-to-many, and many-to-many relationships
+- **Migrations**: Easy schema migrations to evolve your database over time
+- **Multiple dialects**: Support for SQLite, MySQL, and PostgreSQL
+- **Validation**: Built-in validation using struct tags
+- **Transactions**: First-class support for database transactions
+- **Hooks**: Lifecycle hooks for entities (BeforeSave, AfterCreate, etc.)
+- **Query Builder**: Fluent API for building complex queries
+- **Custom Queries**: Support for raw SQL when needed
+- **No Code Generation**: Uses reflection and generics instead of code generation
 
 ### Getting started
 
@@ -29,15 +40,44 @@ You can always use the search in the top right corner or press `CMD+K` / `CTRL+K
 		arrow={true}
 	/>
 	<Cards.Card
-		href="/docs/walkthrough/introduction"
+		href="/docs/getting-started/installation"
 		icon={""}
-		title={"Walkthrough"}
+		title={"Installation"}
 		arrow={true}
 	/>
+	<Cards.Card
+		href="/docs/examples/basic"
+		icon={""}
+		title={"Basic Example"}
+		arrow={true}
+	/>
+	<Cards.Card
+		href="/docs/examples/relationships"
+		icon={""}
+		title={"Relationships"}
+		arrow={true}
+	/>
+</Cards>
+
+### Reference
+
+<Cards className="flex flex-wrap">
 	<Cards.Card
 		href="/docs/reference/features"
 		icon={""}
 		title={"Features"}
+		arrow={true}
+	/>
+	<Cards.Card
+		href="/docs/reference/client"
+		icon={""}
+		title={"API Reference"}
+		arrow={true}
+	/>
+	<Cards.Card
+		href="/docs/cli"
+		icon={""}
+		title={"CLI"}
 		arrow={true}
 	/>
 	<Cards.Card
@@ -67,4 +107,4 @@ You can always use the search in the top right corner or press `CMD+K` / `CTRL+K
 
 ---
 
-It's also recommended reading the [Prisma docs](https://prisma.io/docs) for all tooling around the Go client, like the [Prisma schema file](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/prisma-schema-file) or [Prisma migrate](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-migrate).
+Goofer ORM supports multiple database dialects (SQLite, MySQL, PostgreSQL) and provides various features like migrations, relationships, transactions, and more. Take your Go database access to the next level!
