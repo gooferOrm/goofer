@@ -21,7 +21,7 @@ func NewValidator() *Validator {
 }
 
 // Validate validates a struct using the "validate" tag
-func (v *Validator) Validate(entity interface{}) error {
+func (v *Validator) Validate(entity any) error {
 	return v.validate.Struct(entity)
 }
 
@@ -39,7 +39,7 @@ func (v *Validator) ValidateEntity(entity schema.Entity) ([]ValidationError, err
 	}
 
 	var validationErrors []ValidationError
-	
+
 	// Check if the error is a validator.ValidationErrors
 	if errors, ok := err.(validator.ValidationErrors); ok {
 		for _, e := range errors {
@@ -50,7 +50,7 @@ func (v *Validator) ValidateEntity(entity schema.Entity) ([]ValidationError, err
 		}
 		return validationErrors, nil
 	}
-	
+
 	return nil, err
 }
 
@@ -103,12 +103,12 @@ func NewValidateHook() *ValidateHook {
 }
 
 // BeforeSave validates the entity before saving
-func (h *ValidateHook) BeforeSave(entity interface{}) error {
+func (h *ValidateHook) BeforeSave(entity any) error {
 	// Check if the entity implements ValidatableEntity
 	if validatable, ok := entity.(ValidatableEntity); ok {
 		return validatable.Validate()
 	}
-	
+
 	// Otherwise, use the validator
 	return h.validator.Validate(entity)
 }
