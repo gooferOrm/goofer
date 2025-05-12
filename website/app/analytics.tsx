@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 import type { ReactNode } from "react";
 
-export default function Analytics({ children }: { children: ReactNode }) {
+export  function Analytics({ children }: { children: ReactNode }) {
 	const pathname = usePathname();
 
 	useEffect(() => {

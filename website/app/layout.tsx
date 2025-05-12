@@ -4,7 +4,8 @@ import { Footer, Layout, Navbar } from "nextra-theme-docs";
 import "nextra-theme-docs/style.css";
 
 import "../globals.css";
-import Analytics from "./analytics";
+import { Analytics as CustomAnalytics } from "./analytics";
+import {Analytics}  from "@vercel/analytics/next";
 
 export const metadata = {
 	title: {
@@ -43,7 +44,7 @@ export default async function RootLayout({ children }) {
 				</Script>
 			</head>
 			<body>
-				<Analytics>
+					<CustomAnalytics>
 					<Layout
 						footer={
 							<Footer>
@@ -71,8 +72,10 @@ export default async function RootLayout({ children }) {
 						pageMap={await getPageMap()}
 					>
 						{children}
+						{/* vercel analytics */}
+					<Analytics/>
 					</Layout>
-				</Analytics>
+				</CustomAnalytics>
 			</body>
 		</html>
 	);
