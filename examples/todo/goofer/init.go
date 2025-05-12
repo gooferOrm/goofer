@@ -3,16 +3,23 @@ package goofer
 import (
 	"database/sql"
 	"log"
+
 )
 
-func Init()*sql.DB{
+type Goofer struct{
+	db *sql.DB
+	// dialect any
+}
+
+func Init()Goofer{
 	db,err := sql.Open("sqlite3","./goofer.sqlite")
 	//TODO:Use tripwire to handler errors later
-
 	if err != nil{
 		log.Fatalf("Failed to initialize the database: %v",err)
-		return nil
+		return Goofer{db:nil} //Will fix the logic here later
 	}
-	return db
+	defer db.Close()
+	client := Goofer{db}
+	return client
 
 }
