@@ -47,6 +47,4 @@ func NewClient(
 }
 
 // Repo[T] gives you a fully wired Repository[T].
-func (c *Client) Repo[T any]() *repository.Repository[T] {
-    return repository.NewRepository[T](c.db, c.dialect)
-}
+
