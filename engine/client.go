@@ -5,7 +5,6 @@ import (
     "fmt"
 
     "github.com/gooferOrm/goofer/dialect"
-    "github.com/gooferOrm/goofer/repository"
     "github.com/gooferOrm/goofer/schema"
 )
 
@@ -45,6 +44,4 @@ func NewClient(
 
     return &Client{db: db, dialect: d}, nil
 }
-
-// Repo[T] gives you a fully wired Repository[T].
 

@@ -49,13 +49,13 @@ func main() {
 
     // Now use your repos directly:
     u := &User{Name: "Bob", Email: "bob@example.com"}
-    if err := gooferClient.Repo[User]().Save(u); err != nil {
+    if err := engine.Repo[User](gooferClient).Save(u); err != nil {
         log.Fatalf("save user: %v", err)
     }
     log.Printf("user ID = %d", u.ID)
 
     p := &Post{Title: "Hi", Content: "First post", UserID: u.ID}
-    if err := gooferClient.Repo[Post]().Save(p); err != nil {
+    if err := engine.Repo[Post](gooferClient).Save(p); err != nil {
         log.Fatalf("save post: %v", err)
     }
     log.Printf("post ID = %d", p.ID)
