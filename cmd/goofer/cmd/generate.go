@@ -245,8 +245,22 @@ func (f FieldDefinition) FormatTags() string {
 	return ""
 }
 
+// toLowerCase is a helper function for the template
+func toLowerCase(s string) string {
+	return strings.ToLower(s)
+}
+
 // Template for entity generation
-var entityTemplate = template.Must(template.New("entity").Parse(`package {{ .PackageName }}
+var entityTemplate *template.Template
+
+func init() {
+	// Create a new template with our custom functions
+	entityTemplate = template.New("entity").Funcs(template.FuncMap{
+		"toLowerCase": toLowerCase,
+	})
+
+	// Parse the template
+	template.Must(entityTemplate.Parse(`package {{ .PackageName }}
 
 import (
 {{- if .WithHooks }}
@@ -304,14 +318,4 @@ func (e *{{ .EntityName }}) BeforeDelete() error {
 }
 {{ end }}
 `))
-
-// toLowerCase is a helper function for the template
-func toLowerCase(s string) string {
-	return strings.ToLower(s)
-}
-
-func init() {
-	entityTemplate = entityTemplate.Funcs(template.FuncMap{
-		"toLowerCase": toLowerCase,
-	})
 }
