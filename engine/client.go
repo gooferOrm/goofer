@@ -21,7 +21,7 @@ type Client struct {
 func NewClient(
     db *sql.DB,
     d dialect.Dialect,
-    entities ...interface{},
+    entities ...schema.Entity,
 ) (*Client, error) {
     //register entities
     for _, e := range entities {
