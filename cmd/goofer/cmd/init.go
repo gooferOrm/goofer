@@ -286,44 +286,7 @@ database:
 	}
 
 	// Create a basic README.md
-	readmeContent := fmt.Sprintf(`# %s
-
-A Go application using Goofer ORM.
-
-## Features
-
-- Type-safe database operations
-- %s database support
-- Clean architecture
-
-## Getting Started
-
-### Prerequisites
-
-- Go 1.21 or higher
-- %s
-
-### Installation
-
-1. Clone the repository
-2. Run \`go mod tidy\` to install dependencies
-3. Configure the database in \`config/config.yaml\`
-4. Run \`go run main.go\`
-
-## Project Structure
-
-- \`cmd/\`: Command-line applications
-- \`internal/\`: Internal packages
-  - \`models/\`: Database entity models
-  - \`repository/\`: Data access layer
-- \`migrations/\`: Database migrations
-- \`db/\`: Database files (for SQLite)
-- \`config/\`: Configuration files
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-`,
+	readmeContent := fmt.Sprintf("# %s\n\nA Go application using Goofer ORM.\n\n## Features\n\n- Type-safe database operations\n- %s database support\n- Clean architecture\n\n## Getting Started\n\n### Prerequisites\n\n- Go 1.21 or higher\n- %s\n\n### Installation\n\n1. Clone the repository\n2. Run \"go mod tidy\" to install dependencies\n3. Configure the database in \"config/config.yaml\"\n4. Run \"go run main.go\"\n\n## Project Structure\n\n- \"cmd/\": Command-line applications\n- \"internal/\": Internal packages\n  - \"models/\": Database entity models\n  - \"repository/\": Data access layer\n- \"migrations/\": Database migrations\n- \"db/\": Database files (for SQLite)\n- \"config/\": Configuration files\n\n## License\n\nThis project is licensed under the MIT License - see the LICENSE file for details.",
 		strings.Title(initProjectName),
 		strings.Title(initDialect),
 		getPrerequisiteText(initDialect),
