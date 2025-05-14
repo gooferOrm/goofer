@@ -9,3 +9,4 @@ import (
 func Repo[T schema.Entity](c *Client) *repository.Repository[T] {
     return repository.NewRepository[T](c.db, c.dialect)
 }
+

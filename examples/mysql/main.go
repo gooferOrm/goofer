@@ -52,7 +52,7 @@ func main() {
 	defer db.Close()
 
 	// Create dialect
-	mysqlDialect := dialect.NewMySQLDialect()
+	mysqlDialect := &dialect.MySQLDialect{}
 
 	// Register entities
 	if err := schema.Registry.RegisterEntity(User{}); err != nil {

@@ -108,7 +108,7 @@ func main() {
 The repository includes several examples demonstrating different features:
 
 - **Basic**: Simple CRUD operations with SQLite
-- **MySQL**: Using Goofer with MySQL
+- **MySQL**: U`sing Goofer with MySQL
 - **PostgreSQL**: Using Goofer with PostgreSQL
 - **Relationships**: Working with one-to-one, one-to-many, and many-to-many relationships
 - **Migrations**: Evolving your database schema over time

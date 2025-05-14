@@ -8,9 +8,9 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/gooferOrm/goofer/pkg/dialect"
-	"github.com/gooferOrm/goofer/pkg/repository"
-	"github.com/gooferOrm/goofer/pkg/schema"
+	"github.com/gooferOrm/goofer/dialect"
+	"github.com/gooferOrm/goofer/repository"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // User entity
@@ -53,7 +53,7 @@ func main() {
 	defer db.Close()
 
 	// Create dialect
-	postgresDialect := dialect.NewPostgresDialect()
+	postgresDialect := &dialect.PostgresDialect{}
 
 	// Register entities
 	if err := schema.Registry.RegisterEntity(User{}); err != nil {
