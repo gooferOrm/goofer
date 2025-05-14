@@ -9,7 +9,13 @@ import (
 
 // PostgresDialect implements the Dialect interface for PostgreSQL
 type PostgresDialect struct {
-	BaseDialect
+	*BaseDialect
+}
+
+func NewPostgresDialect() *PostgresDialect {
+	return &PostgresDialect{
+		BaseDialect: &BaseDialect{},
+	}
 }
 
 // Name returns the name of the dialect

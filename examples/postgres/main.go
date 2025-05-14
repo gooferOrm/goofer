@@ -53,7 +53,7 @@ func main() {
 	defer db.Close()
 
 	// Create dialect
-	postgresDialect := &dialect.PostgresDialect{}
+	postgresDialect := dialect.NewPostgresDialect()
 
 	// Register entities
 	if err := schema.Registry.RegisterEntity(User{}); err != nil {

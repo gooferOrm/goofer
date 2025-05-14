@@ -9,7 +9,13 @@ import (
 
 // MySQLDialect implements the Dialect interface for MySQL
 type MySQLDialect struct {
-	BaseDialect
+	*BaseDialect
+}
+
+func NewMySQLDialect() *MySQLDialect {
+	return &MySQLDialect{
+		BaseDialect: &BaseDialect{},
+	}
 }
 
 // Name returns the name of the dialect
