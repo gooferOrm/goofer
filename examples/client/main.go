@@ -1,13 +1,14 @@
 package main
 
 import (
-    "database/sql"
-    "log"
-    "time"
+	"database/sql"
+	"fmt"
+	"log"
+	"time"
 
-    _ "github.com/mattn/go-sqlite3"
-    "github.com/gooferOrm/goofer/dialect"
-    "github.com/gooferOrm/goofer/engine"
+	"github.com/gooferOrm/goofer/dialect"
+	"github.com/gooferOrm/goofer/engine"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // 1) Define entities as before:
@@ -48,15 +49,25 @@ func main() {
     }
 
     // Now use your repos directly:
-    u := &User{Name: "Bob", Email: "bob@example.com"}
+    u := &User{Name: "Bob", Email: "bob@example1.com"}
     if err := engine.Repo[User](gooferClient).Save(u); err != nil {
         log.Fatalf("save user: %v", err)
     }
     log.Printf("user ID = %d", u.ID)
 
     p := &Post{Title: "Hi", Content: "First post", UserID: u.ID}
-    if err := engine.Repo[Post](gooferClient).Save(p); err != nil {
+    postRepo := engine.Repo[Post](gooferClient)
+    if err := postRepo.Save(p); err != nil {
         log.Fatalf("save post: %v", err)
+    }
+    allPost,err := postRepo.Find().All()
+    if err != nil {
+        log.Fatalf("Error: %v",err)
+        return
+    }
+    fmt.Println(allPost)
+    for _, post := range allPost{
+        fmt.Println(post)
     }
     log.Printf("post ID = %d", p.ID)
 }
