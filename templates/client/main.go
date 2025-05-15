@@ -4,53 +4,64 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gooferOrm/goofer/engine"
-	"github.com/gooferOrm/goofer/examples/custom_queries/goofer"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/yourusername/yourproject/goofer"
 )
 
 func main() {
-    // db, err := sql.Open("sqlite3", "./db.db")
-    // if err != nil {
-    //     log.Fatalf("open db: %v", err)
-    // }
-    // defer db.Close()
-    GooferClient,err := engine.Connect("sqlite3", "./db.db")
+	// Initialize the application
+	client, err := goofer.Init()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to initialize application: %v", err)
 	}
-    
+	defer goofer.Close(client)
 
-    // engine setup:
-    // GooferClient, err := engine.NewClient(
-    //     db,
-    //     dialect.NewSQLiteDialect(),
-    //     goofer.User{}, goofer.Post{},
-    // )
-    if err != nil {
-        log.Fatalf("engine init: %v", err)
-    }
+	// Get a repository for the User entity
+	userRepo := client.GetRepository(&goofer.User{})
 
-    // Now use your repos directly:
-    u := &goofer.User{Name: "Bob", Email: "bob@example1.com"}
-    if err := engine.Repo[goofer.User](GooferClient).Save(u); err != nil {
-        log.Fatalf("save user: %v", err)
-    }
-    log.Printf("user ID = %d", u.ID)
+	// Create a new user
+	user := &goofer.User{
+		Name:  "Tach",
+		Email: "tach@example.com",
+	}
 
-    p := &goofer.Post{Title: "Hi", Content: "First post", UserID: u.ID}
-    postRepo := engine.Repo[goofer.Post](GooferClient)
-    if err := postRepo.Save(p); err != nil {
-        log.Fatalf("save post: %v", err)
-    }
-    allPost,err := postRepo.Find().All()
-    if err != nil {
-        log.Fatalf("Error: %v",err)
-        return
-    }
-    fmt.Println(allPost)
-    for _, post := range allPost{
-        fmt.Println(post)
-    }
-    log.Printf("post ID = %d", p.ID)
+	if err := userRepo.Create(user); err != nil {
+		log.Fatalf("Failed to create user: %v", err)
+	}
+	log.Printf("Created user with ID: %d", user.ID)
+
+	// Get a repository for the Post entity
+	postRepo := client.GetRepository(&goofer.Post{})
+
+	// Create a new post
+	post := &goofer.Post{
+		Title:   "Hello, Goofer!",
+		Content: "This is my first post using Goofer ORM",
+		UserID:  user.ID,
+	}
+
+	if err := postRepo.Create(post); err != nil {
+		log.Fatalf("Failed to create post: %v", err)
+	}
+	log.Printf("Created post with ID: %d", post.ID)
+
+	// Query posts
+	var posts []*goofer.Post
+	if err := postRepo.FindAll(&posts); err != nil {
+		log.Fatalf("Failed to fetch posts: %v", err)
+	}
+
+	// Print all posts
+	fmt.Println("\nAll posts:")
+	for _, p := range posts {
+		fmt.Printf("ID: %d, Title: %s, Content: %s, UserID: %d\n", 
+			p.ID, p.Title, p.Content, p.UserID)
+	}
+
+	// Example of finding a user by ID
+	var foundUser goofer.User
+	if err := userRepo.FindByID(user.ID, &foundUser); err != nil {
+		log.Fatalf("Failed to find user: %v", err)
+	}
+	fmt.Printf("\nFound user: %+v\n", foundUser)
 }

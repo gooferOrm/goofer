@@ -36,15 +36,21 @@ type DBExecutor interface {
 	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
 }
 
+// AnyEntity is an interface that allows working with any entity type
+// This is used internally for untyped repository operations
+type AnyEntity interface {
+	schema.Entity
+}
+
 // Repository provides type-safe database operations
-type Repository[T schema.Entity] struct {
+type Repository[T AnyEntity] struct {
 	db       DBExecutor
 	dialect  Dialect
 	metadata *schema.EntityMetadata
 	ctx      context.Context
 }
 
-// NewRepository creates a new repository
+// NewRepository creates a new repository for the given entity type
 func NewRepository[T schema.Entity](db *sql.DB, dialect Dialect) *Repository[T] {
 	var entity T
 	entityType := reflect.TypeOf(entity)
@@ -57,12 +63,45 @@ func NewRepository[T schema.Entity](db *sql.DB, dialect Dialect) *Repository[T] 
 		panic(fmt.Sprintf("entity %s not registered", entityType.Name()))
 	}
 
-	return &Repository[T]{
+	repo := &Repository[T]{
 		db:       db,
 		dialect:  dialect,
 		metadata: meta,
 		ctx:      context.Background(),
 	}
+
+	return repo
+}
+
+// NewUntypedRepository creates a new untyped repository for the given entity type
+// This is used internally by the RepositoryProvider
+func NewUntypedRepository(entityType reflect.Type, db *sql.DB, d Dialect) interface{} {
+	if entityType.Kind() == reflect.Ptr {
+		entityType = entityType.Elem()
+	}
+
+	// Create a new instance of the entity type to get its table name
+	elem := reflect.New(entityType).Interface()
+	_, ok := elem.(schema.Entity)
+	if !ok {
+		panic(fmt.Sprintf("type %s does not implement schema.Entity", entityType.Name()))
+	}
+
+	// Create a repository for the entity type using reflection
+	repoType := reflect.TypeOf((*Repository[AnyEntity])(nil))
+	repo := reflect.New(repoType.Elem()).Interface().(*Repository[AnyEntity])
+	repo.db = db
+	repo.dialect = d
+	repo.ctx = context.Background()
+
+	// Set the metadata
+	meta, exists := schema.Registry.GetEntityMetadata(entityType)
+	if !exists {
+		panic(fmt.Sprintf("entity %s not registered", entityType.Name()))
+	}
+	repo.metadata = meta
+
+	return repo
 }
 
 // WithContext sets the context for the repository
