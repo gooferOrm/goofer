@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gooferOrm/goofer/dialect"
+	"github.com/gooferOrm/goofer/schema"
 )
 
 // Config holds the database configuration
@@ -13,6 +14,11 @@ type Config struct {
 	Driver   string
 	DSN      string
 	LogLevel string // "debug", "info", "error"
+	// RegisterEntities func(entities []schema.Entity)
+}
+
+func (c Config) RegisterEntities(entities []schema.Entity)err {
+	return nil
 }
 
 // NewConfig creates a new database configuration with sensible defaults
@@ -55,12 +61,6 @@ func (c *Config) Connect() (*Client, error) {
 	default:
 		return nil, fmt.Errorf("unsupported database driver: %s", c.Driver)
 	}
-
-	// Configure logger based on log level
-	// (You'll need to implement the logger separately)
-	// setupLogger(c.LogLevel)
-
-
 	return &Client{db: db, dialect: d}, nil
 }
 

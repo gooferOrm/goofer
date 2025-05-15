@@ -41,7 +41,7 @@ func main() {
     // engine setup:
     gooferClient, err := engine.NewClient(
         db,
-        dialect.NewSQLiteDialect(), //Todo: add the new dialect function on other dialects as well
+        dialect.NewSQLiteDialect(), 
         User{}, Post{},
     )
     if err != nil {

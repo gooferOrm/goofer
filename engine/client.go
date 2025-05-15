@@ -23,7 +23,13 @@ func NewClient(
     d dialect.Dialect,
     entities ...schema.Entity,
 ) (*Client, error) {
-    //register entities
+    
+
+    return &Client{db: db, dialect: d}, nil
+}
+
+func BulkRegisterEntity(entities ...schema.Entity) {
+	//register entities
     for _, e := range entities {
         if err := schema.Registry.RegisterEntity(e); err != nil {
             return nil, fmt.Errorf("register %T: %w", e, err)
@@ -41,7 +47,4 @@ func NewClient(
             return nil, fmt.Errorf("migrate %s: %w", meta.TableName, err)
         }
     }
-
-    return &Client{db: db, dialect: d}, nil
 }
-
