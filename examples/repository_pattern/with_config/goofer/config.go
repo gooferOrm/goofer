@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/goferOrm/goofer/engine"
+	"github.com/gooferOrm/goofer/engine"
 )
 
 // DB holds the database connection

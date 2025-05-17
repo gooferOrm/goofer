@@ -23,7 +23,7 @@ package main
 
 import (
 	"log"
-	"github.com/goferOrm/goofer/engine"
+	"github.com/gooferOrm/goofer/engine"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -63,7 +63,7 @@ package main
 import (
 	"database/sql"
 	"log"
-	"github.com/goferOrm/goofer/repository"
+	"github.com/gooferOrm/goofer/repository"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -97,7 +97,7 @@ package goofer
 
 import (
 	"database/sql"
-	"github.com/goferOrm/goofer/engine"
+	"github.com/gooferOrm/goofer/engine"
 )
 
 var DB *sql.DB

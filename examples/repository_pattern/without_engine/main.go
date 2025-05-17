@@ -6,7 +6,7 @@ import (
 	"log"
 
 
-	"github.com/goferOrm/goofer/repository"
+	"github.com/gooferOrm/goofer/repository"
 	_ "github.com/mattn/go-sqlite3"
 )
 
