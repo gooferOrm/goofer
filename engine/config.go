@@ -17,7 +17,7 @@ type Config struct {
 	// RegisterEntities func(entities []schema.Entity)
 }
 
-func (c Config) RegisterEntities(entities []schema.Entity)err {
+func (c Config) RegisterEntities(entities []schema.Entity)error {
 	return nil
 }
 
