@@ -16,6 +16,9 @@ const Wrapper = useMDXComponents([]).wrapper;
 
 export default async function Page(props) {
 	const params = await props.params;
+	if(params.mdxPath === undefined) {
+		return <div className="">GOOFERORM</div>
+	}
 	const result = await importPage(params.mdxPath);
 	const { default: MDXContent, toc, metadata } = result;
 	return (
