@@ -3,6 +3,7 @@
 import { generateStaticParamsFor, importPage } from "nextra/pages";
 
 import { useMDXComponents } from "../../mdx-components";
+import Hero from "../../components/Hero";
 
 export const generateStaticParams = generateStaticParamsFor("mdxPath");
 
@@ -17,7 +18,9 @@ const Wrapper = useMDXComponents([]).wrapper;
 export default async function Page(props) {
 	const params = await props.params;
 	if(params.mdxPath === undefined) {
-		return <div className="">GOOFERORM</div>
+		return (
+			<Hero/>
+		)
 	}
 	const result = await importPage(params.mdxPath);
 	const { default: MDXContent, toc, metadata } = result;
@@ -27,3 +30,4 @@ export default async function Page(props) {
 		</Wrapper>
 	);
 }
+
