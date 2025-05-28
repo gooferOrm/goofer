@@ -9,7 +9,7 @@ export const meta = {
 
 export default function Hero() {
   return (
-    <div className="h-full w-full flex items-center justify-center px-4 py-16 bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white">
+    <div className="h-full w-full flex items-center justify-center px-4 py-16 bg-gradient-to-br from-neutral-900 via-black to-neutral-800 text-white">
       <div className="text-center max-w-3xl">
         <motion.h1
           className="text-5xl font-extrabold mb-4 tracking-tight"
@@ -21,7 +21,7 @@ export default function Hero() {
         </motion.h1>
 
         <motion.p
-          className="italic text-lg mb-2 text-gray-300"
+          className="italic text-lg mb-2 text-neutral-300"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
@@ -30,7 +30,7 @@ export default function Hero() {
         </motion.p>
 
         <motion.h2
-          className="text-xl font-medium mb-8 text-gray-400"
+          className="text-xl font-medium mb-8 text-neutral-400"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.5 }}
@@ -46,14 +46,14 @@ export default function Hero() {
         >
           <Link
             href="/docs"
-            className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 transition font-semibold shadow-lg"
+            className="px-6 py-3 rounded-lg bg-orange-600 hover:bg-orange-700 transition font-semibold shadow-lg"
           >
             Read the docs <span className="ml-1">→</span>
           </Link>
 
           <Link
             href="https://github.com/gooferOrm/goofer"
-            className="px-6 py-3 rounded-lg border border-gray-500 hover:border-white transition font-semibold text-white"
+            className="px-6 py-3 rounded-lg border border-neutral-500 hover:border-white transition font-semibold text-white"
           >
             GitHub Repo <span className="ml-1">→</span>
           </Link>

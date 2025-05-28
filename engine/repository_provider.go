@@ -10,20 +10,20 @@ import (
 // RepositoryProvider defines the interface for getting repositories for entity types
 type RepositoryProvider interface {
 	// Repository returns a repository for the given entity type
-	Repository(entity schema.Entity) interface{}
+	Repository(entity schema.Entity) any
 
 	// MustRepository returns a repository for the given entity type and panics if the entity is not registered
-	MustRepository(entity schema.Entity) interface{}
+	MustRepository(entity schema.Entity) any
 }
 
 // Repository returns a repository for the given entity type
-func (c *Client) Repository(entity schema.Entity) interface{} {
+func (c *Client) Repository(entity schema.Entity) any {
 	t := schema.GetEntityType(entity)
 	return c.getRepositoryForType(t)
 }
 
 // getRepositoryForType returns a repository for the given reflect.Type
-func (c *Client) getRepositoryForType(t reflect.Type) interface{} {
+func (c *Client) getRepositoryForType(t reflect.Type) any {
 	switch t.Kind() {
 	case reflect.Ptr:
 		elemType := t.Elem()
@@ -41,7 +41,7 @@ func (c *Client) getRepositoryForType(t reflect.Type) interface{} {
 }
 
 // MustRepository returns a repository for the given entity type and panics if the entity is not registered
-func (c *Client) MustRepository(entity schema.Entity) interface{} {
+func (c *Client) MustRepository(entity schema.Entity) any {
 	t := schema.GetEntityType(entity)
 	repo := c.getRepositoryForType(t)
 	if repo == nil {
@@ -49,5 +49,3 @@ func (c *Client) MustRepository(entity schema.Entity) interface{} {
 	}
 	return repo
 }
-
-
