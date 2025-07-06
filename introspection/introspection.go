@@ -207,7 +207,7 @@ func (i *Introspector) getColumns(tableName string) ([]ColumnInfo, error) {
 	case "sqlite":
 		query = "PRAGMA table_info(" + i.dialect.QuoteIdentifier(tableName) + ")"
 	case "mysql":
-		query = fmt.Sprintf(`
+		query = `
 			SELECT 
 				column_name, 
 				data_type, 
@@ -217,9 +217,9 @@ func (i *Introspector) getColumns(tableName string) ([]ColumnInfo, error) {
 				column_comment
 			FROM information_schema.columns 
 			WHERE table_schema = DATABASE() AND table_name = ?
-		`)
+		`
 	case "postgres":
-		query = fmt.Sprintf(`
+		query = `
 			SELECT 
 				column_name,
 				data_type,
@@ -228,7 +228,7 @@ func (i *Introspector) getColumns(tableName string) ([]ColumnInfo, error) {
 				col_description((table_schema||'.'||table_name)::regclass, ordinal_position) as comment
 			FROM information_schema.columns 
 			WHERE table_schema = 'public' AND table_name = ?
-		`)
+		`
 	default:
 		return nil, fmt.Errorf("unsupported dialect: %s", i.dialect.Name())
 	}
