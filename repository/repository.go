@@ -492,7 +492,7 @@ func (qb *QueryBuilder[T]) loadRelation(results *[]T, meta *schema.EntityMetadat
 
 // loadOneToManyRelation loads one-to-many relationships
 func (qb *QueryBuilder[T]) loadOneToManyRelation(results *[]T, relation *schema.RelationMetadata, pkValues []interface{}) error {
-	
+
 	// 1. Query the related table using the foreign key
 	// 2. Group the results by the foreign key
 	// 3. Set the related entities on the appropriate parent entities
@@ -504,7 +504,7 @@ func (qb *QueryBuilder[T]) loadOneToManyRelation(results *[]T, relation *schema.
 
 // loadManyToOneRelation loads many-to-one relationships
 func (qb *QueryBuilder[T]) loadManyToOneRelation(results *[]T, relation *schema.RelationMetadata, pkValues []interface{}) error {
-	
+
 	// 1. Query the related table using the primary key
 	// 2. Set the related entity on the appropriate parent entity
 
@@ -515,7 +515,7 @@ func (qb *QueryBuilder[T]) loadManyToOneRelation(results *[]T, relation *schema.
 
 // loadOneToOneRelation loads one-to-one relationships
 func (qb *QueryBuilder[T]) loadOneToOneRelation(results *[]T, relation *schema.RelationMetadata, pkValues []interface{}) error {
-	
+
 	// 1. Query the related table using the foreign key
 	// 2. Set the related entity on the appropriate parent entity
 
@@ -526,7 +526,7 @@ func (qb *QueryBuilder[T]) loadOneToOneRelation(results *[]T, relation *schema.R
 
 // loadManyToManyRelation loads many-to-many relationships
 func (qb *QueryBuilder[T]) loadManyToManyRelation(results *[]T, relation *schema.RelationMetadata, pkValues []interface{}) error {
-	
+
 	// 1. Query the join table using the foreign key
 	// 2. Query the related table using the reference key
 	// 3. Set the related entities on the appropriate parent entity
