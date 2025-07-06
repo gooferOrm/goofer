@@ -118,11 +118,22 @@ func (r *Repository[T]) WithContext(ctx context.Context) *Repository[T] {
 type QueryBuilder[T schema.Entity] struct {
 	repo       *Repository[T]
 	conditions []string
-	args       []interface{}
+	args       []any
 	includes   []string
+	joins      []JoinClause
 	order      string
 	limit      int
 	offset     int
+	groupBy    string
+	having     string
+	distinct   bool
+}
+
+// JoinClause represents a JOIN operation
+type JoinClause struct {
+	Type      string // "INNER", "LEFT", "RIGHT", "FULL"
+	Table     string
+	Condition string
 }
 
 // Find initiates a query builder
@@ -137,9 +148,149 @@ func (qb *QueryBuilder[T]) Where(cond string, args ...interface{}) *QueryBuilder
 	return qb
 }
 
-// Include specifies relations to preload
-func (qb *QueryBuilder[T]) Include(relations ...string) *QueryBuilder[T] {
+// With enables eager loading of relationships
+func (qb *QueryBuilder[T]) With(relations ...string) *QueryBuilder[T] {
 	qb.includes = append(qb.includes, relations...)
+	return qb
+}
+
+// Include is an alias for With (for backward compatibility)
+func (qb *QueryBuilder[T]) Include(relations ...string) *QueryBuilder[T] {
+	return qb.With(relations...)
+}
+
+// Join adds a JOIN clause to the query
+func (qb *QueryBuilder[T]) Join(table, condition string) *QueryBuilder[T] {
+	qb.joins = append(qb.joins, JoinClause{
+		Type:      "INNER",
+		Table:     table,
+		Condition: condition,
+	})
+	return qb
+}
+
+// LeftJoin adds a LEFT JOIN clause to the query
+func (qb *QueryBuilder[T]) LeftJoin(table, condition string) *QueryBuilder[T] {
+	qb.joins = append(qb.joins, JoinClause{
+		Type:      "LEFT",
+		Table:     table,
+		Condition: condition,
+	})
+	return qb
+}
+
+// RightJoin adds a RIGHT JOIN clause to the query
+func (qb *QueryBuilder[T]) RightJoin(table, condition string) *QueryBuilder[T] {
+	qb.joins = append(qb.joins, JoinClause{
+		Type:      "RIGHT",
+		Table:     table,
+		Condition: condition,
+	})
+	return qb
+}
+
+// FullJoin adds a FULL JOIN clause to the query
+func (qb *QueryBuilder[T]) FullJoin(table, condition string) *QueryBuilder[T] {
+	qb.joins = append(qb.joins, JoinClause{
+		Type:      "FULL",
+		Table:     table,
+		Condition: condition,
+	})
+	return qb
+}
+
+// GroupBy sets the GROUP BY clause
+func (qb *QueryBuilder[T]) GroupBy(groupBy string) *QueryBuilder[T] {
+	qb.groupBy = groupBy
+	return qb
+}
+
+// Having sets the HAVING clause
+func (qb *QueryBuilder[T]) Having(having string, args ...interface{}) *QueryBuilder[T] {
+	qb.having = having
+	qb.args = append(qb.args, args...)
+	return qb
+}
+
+// Distinct sets the DISTINCT clause
+func (qb *QueryBuilder[T]) Distinct() *QueryBuilder[T] {
+	qb.distinct = true
+	return qb
+}
+
+// WhereIn adds a WHERE IN condition
+func (qb *QueryBuilder[T]) WhereIn(column string, values []interface{}) *QueryBuilder[T] {
+	if len(values) == 0 {
+		return qb
+	}
+
+	placeholders := make([]string, len(values))
+	for i := range values {
+		placeholders[i] = "?"
+	}
+
+	condition := fmt.Sprintf("%s IN (%s)", qb.repo.dialect.QuoteIdentifier(column), strings.Join(placeholders, ", "))
+	qb.conditions = append(qb.conditions, condition)
+	qb.args = append(qb.args, values...)
+	return qb
+}
+
+// WhereNotIn adds a WHERE NOT IN condition
+func (qb *QueryBuilder[T]) WhereNotIn(column string, values []interface{}) *QueryBuilder[T] {
+	if len(values) == 0 {
+		return qb
+	}
+
+	placeholders := make([]string, len(values))
+	for i := range values {
+		placeholders[i] = "?"
+	}
+
+	condition := fmt.Sprintf("%s NOT IN (%s)", qb.repo.dialect.QuoteIdentifier(column), strings.Join(placeholders, ", "))
+	qb.conditions = append(qb.conditions, condition)
+	qb.args = append(qb.args, values...)
+	return qb
+}
+
+// WhereBetween adds a WHERE BETWEEN condition
+func (qb *QueryBuilder[T]) WhereBetween(column string, start, end interface{}) *QueryBuilder[T] {
+	condition := fmt.Sprintf("%s BETWEEN ? AND ?", qb.repo.dialect.QuoteIdentifier(column))
+	qb.conditions = append(qb.conditions, condition)
+	qb.args = append(qb.args, start, end)
+	return qb
+}
+
+// WhereLike adds a WHERE LIKE condition
+func (qb *QueryBuilder[T]) WhereLike(column, pattern string) *QueryBuilder[T] {
+	condition := fmt.Sprintf("%s LIKE ?", qb.repo.dialect.QuoteIdentifier(column))
+	qb.conditions = append(qb.conditions, condition)
+	qb.args = append(qb.args, pattern)
+	return qb
+}
+
+// WhereNull adds a WHERE IS NULL condition
+func (qb *QueryBuilder[T]) WhereNull(column string) *QueryBuilder[T] {
+	condition := fmt.Sprintf("%s IS NULL", qb.repo.dialect.QuoteIdentifier(column))
+	qb.conditions = append(qb.conditions, condition)
+	return qb
+}
+
+// WhereNotNull adds a WHERE IS NOT NULL condition
+func (qb *QueryBuilder[T]) WhereNotNull(column string) *QueryBuilder[T] {
+	condition := fmt.Sprintf("%s IS NOT NULL", qb.repo.dialect.QuoteIdentifier(column))
+	qb.conditions = append(qb.conditions, condition)
+	return qb
+}
+
+// OrWhere adds an OR condition
+func (qb *QueryBuilder[T]) OrWhere(cond string, args ...interface{}) *QueryBuilder[T] {
+	if len(qb.conditions) > 0 {
+		// Wrap existing conditions in parentheses and add OR
+		qb.conditions = append([]string{"(" + strings.Join(qb.conditions, " AND ") + ")"}, cond)
+	} else {
+		qb.conditions = append(qb.conditions, cond)
+	}
+	qb.args = append(qb.args, args...)
 	return qb
 }
 
@@ -197,17 +348,43 @@ func (qb *QueryBuilder[T]) Count() (int64, error) {
 // buildSelectQuery constructs the SQL query
 func (qb *QueryBuilder[T]) buildSelectQuery() string {
 	var selects []string
+
+	// Add DISTINCT if specified
+	selectKeyword := "SELECT"
+	if qb.distinct {
+		selectKeyword = "SELECT DISTINCT"
+	}
+
+	// Build select columns
 	for _, field := range qb.repo.metadata.Fields {
 		selects = append(selects, qb.repo.dialect.QuoteIdentifier(field.DBName))
 	}
 
-	query := fmt.Sprintf("SELECT %s FROM %s",
+	query := fmt.Sprintf("%s %s FROM %s",
+		selectKeyword,
 		strings.Join(selects, ", "),
 		qb.repo.dialect.QuoteIdentifier(qb.repo.metadata.TableName),
 	)
 
+	// Add JOIN clauses
+	for _, join := range qb.joins {
+		query += fmt.Sprintf(" %s JOIN %s ON %s",
+			join.Type,
+			qb.repo.dialect.QuoteIdentifier(join.Table),
+			join.Condition,
+		)
+	}
+
 	if len(qb.conditions) > 0 {
 		query += " WHERE " + strings.Join(qb.conditions, " AND ")
+	}
+
+	if qb.groupBy != "" {
+		query += " GROUP BY " + qb.groupBy
+	}
+
+	if qb.having != "" {
+		query += " HAVING " + qb.having
 	}
 
 	if qb.order != "" {
@@ -236,6 +413,127 @@ func (qb *QueryBuilder[T]) buildCountQuery() string {
 	}
 
 	return query
+}
+
+// loadRelations loads related entities for eager loading
+func (qb *QueryBuilder[T]) loadRelations(results *[]T) error {
+	if len(*results) == 0 {
+		return nil
+	}
+
+	// Get the first entity to determine its type
+	firstEntity := (*results)[0]
+	entityType := reflect.TypeOf(firstEntity)
+	if entityType.Kind() == reflect.Ptr {
+		entityType = entityType.Elem()
+	}
+
+	// Get entity metadata
+	meta, exists := schema.Registry.GetEntityMetadata(entityType)
+	if !exists {
+		return fmt.Errorf("entity metadata not found for type %s", entityType.Name())
+	}
+
+	// Load each requested relation
+	for _, relationName := range qb.includes {
+		if err := qb.loadRelation(results, meta, relationName); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// loadRelation loads a specific relation for all entities in the results
+func (qb *QueryBuilder[T]) loadRelation(results *[]T, meta *schema.EntityMetadata, relationName string) error {
+	// Find the relation metadata
+	var relation *schema.RelationMetadata
+	for _, rel := range meta.Relations {
+		// This is a simplified lookup - in a real implementation, you'd need to match by field name
+		if rel.ForeignKey != "" {
+			relation = &rel
+			break
+		}
+	}
+
+	if relation == nil {
+		return fmt.Errorf("relation '%s' not found in entity %s", relationName, meta.TableName)
+	}
+
+	// Get primary key values from results
+	var pkValues []interface{}
+	resultsValue := reflect.ValueOf(*results)
+	for i := 0; i < resultsValue.Len(); i++ {
+		entity := resultsValue.Index(i)
+		pkField := entity.FieldByName(meta.PrimaryKey.Name)
+		if pkField.IsValid() {
+			pkValues = append(pkValues, pkField.Interface())
+		}
+	}
+
+	if len(pkValues) == 0 {
+		return nil
+	}
+
+	// Load related entities based on relation type
+	switch relation.Type {
+	case schema.OneToMany:
+		return qb.loadOneToManyRelation(results, relation, pkValues)
+	case schema.ManyToOne:
+		return qb.loadManyToOneRelation(results, relation, pkValues)
+	case schema.OneToOne:
+		return qb.loadOneToOneRelation(results, relation, pkValues)
+	case schema.ManyToMany:
+		return qb.loadManyToManyRelation(results, relation, pkValues)
+	default:
+		return fmt.Errorf("unsupported relation type: %s", relation.Type)
+	}
+}
+
+// loadOneToManyRelation loads one-to-many relationships
+func (qb *QueryBuilder[T]) loadOneToManyRelation(results *[]T, relation *schema.RelationMetadata, pkValues []interface{}) error {
+	
+	// 1. Query the related table using the foreign key
+	// 2. Group the results by the foreign key
+	// 3. Set the related entities on the appropriate parent entities
+
+	// For now, we'll just log that this relation type is supported
+	// TODO: Implement full one-to-many loading logic
+	return nil
+}
+
+// loadManyToOneRelation loads many-to-one relationships
+func (qb *QueryBuilder[T]) loadManyToOneRelation(results *[]T, relation *schema.RelationMetadata, pkValues []interface{}) error {
+	
+	// 1. Query the related table using the primary key
+	// 2. Set the related entity on the appropriate parent entity
+
+	// For now, we'll just log that this relation type is supported
+	// TODO: Implement full many-to-one loading logic
+	return nil
+}
+
+// loadOneToOneRelation loads one-to-one relationships
+func (qb *QueryBuilder[T]) loadOneToOneRelation(results *[]T, relation *schema.RelationMetadata, pkValues []interface{}) error {
+	
+	// 1. Query the related table using the foreign key
+	// 2. Set the related entity on the appropriate parent entity
+
+	// For now, we'll just log that this relation type is supported
+	// TODO: Implement full one-to-one loading logic
+	return nil
+}
+
+// loadManyToManyRelation loads many-to-many relationships
+func (qb *QueryBuilder[T]) loadManyToManyRelation(results *[]T, relation *schema.RelationMetadata, pkValues []interface{}) error {
+	
+	// 1. Query the join table using the foreign key
+	// 2. Query the related table using the reference key
+	// 3. Set the related entities on the appropriate parent entity
+
+	// For now, we'll just log that this relation type is supported
+	// TODO: Implement full many-to-many loading logic
+	return nil
 }
 
 // scanRows scans rows into entity structs
@@ -301,7 +599,12 @@ func (qb *QueryBuilder[T]) scanRows(rows *sql.Rows) ([]T, error) {
 		return nil, err
 	}
 
-	// TODO: Load relations if requested
+	// Load relations if requested
+	if len(qb.includes) > 0 {
+		if err := qb.loadRelations(&results); err != nil {
+			return nil, err
+		}
+	}
 
 	return results, nil
 }
@@ -418,7 +721,7 @@ func (r *Repository[T]) update(entity *T) error {
 			continue
 		}
 
-		setColumns = append(setColumns, 
+		setColumns = append(setColumns,
 			fmt.Sprintf("%s = ?", r.dialect.QuoteIdentifier(field.DBName)))
 
 		fieldValue := val.FieldByName(field.Name)
