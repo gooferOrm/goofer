@@ -1,12 +1,12 @@
 package goofer
 
-import "github.com/gooferOrm/goofer/schema"
+// import "github.com/gooferOrm/goofer/schema"
 
 
 type Todo struct{
 	ID uint 		`orm:"primaryKey;autoIncrement"`
 	Title string	`orm:"type:varchar;notnull"`
-	desc string		`orm:type:varchar;default:null`
+	Desc string		`orm:type:varchar;default:null`
 }
 
 func (Todo) TableName() string{

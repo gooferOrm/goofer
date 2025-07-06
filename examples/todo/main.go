@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gooferOrm/goofer/dialect"
@@ -11,6 +12,7 @@ import (
 
 func main(){
 	sqliteDialect := dialect.NewSQLiteDialect()
+	fmt.Println(sqliteDialect.Name())
 
 	if err:= schema.Registry.RegisterEntity(goofer.Todo{}); err != nil{
 		log.Fatalf("Error while registering the todo entity: %v",err)
