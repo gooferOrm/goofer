@@ -22,6 +22,10 @@ Stop hand-writing SQL like it's 1999. This Go ORM gives your structs a life of t
 go get github.com/gooferOrm/goofer
 ```
 
+## Usage
+
+Goofer offers two primary usage flows: a code-first manual approach and a CLI-driven approach for rapid development. To understand which flow is right for you, please refer to our [Usage Flow Guide](./docs/USAGE_FLOW.md).
+
 ## Quick Start
 
 ```go
