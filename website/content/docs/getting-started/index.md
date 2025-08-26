@@ -2,6 +2,26 @@
 
 Goofer ORM is a powerful, type-safe ORM for Go that provides an amazing developer experience with relationships, migrations, and zero drama. This guide will help you get started quickly.
 
+## Quick Navigation
+
+- **[Complete Tutorial](./complete-tutorial)** - Build a full blog application from scratch
+- **[Quickstart Guide](./quickstart)** - Get running in 5 minutes  
+- **[Advanced Setup](./advanced)** - Production-ready configuration
+- **[CLI Guide](./cli)** - Using the Goofer CLI tools
+
+## What Makes Goofer Special
+
+Goofer ORM transforms your Go structs into powerful database interfaces without the complexity of traditional ORMs. Built with Go's type system in mind, it provides:
+
+- **Type Safety**: Full compile-time type checking with generics
+- **Zero Magic**: Transparent SQL generation you can inspect and understand  
+- **Multiple Databases**: SQLite, MySQL, PostgreSQL support
+- **Migrations**: Version-controlled schema changes
+- **Relationships**: One-to-one, one-to-many, many-to-many with eager loading
+- **Validation**: Built-in validation with struct tags
+- **Hooks**: Lifecycle events for custom logic
+- **Performance**: Connection pooling, query optimization, caching strategies
+
 ## Installation
 
 First, install Goofer ORM using Go modules:
@@ -147,9 +167,19 @@ if err := userRepo.Delete(user); err != nil {
 
 ## Next Steps
 
-- See the [quickstart](quickstart) page for a more detailed walkthrough
+- **[Complete Tutorial](./complete-tutorial)** - Build a full blog application from scratch
+- **[Comprehensive Guide](../../COMPREHENSIVE_GUIDE)** - Deep dive into all ORM features
+- **[Migration Guide](../../MIGRATION_GUIDE)** - Master database migrations
 - Learn about [entity relationships](../examples/relationships)
-- Explore [migrations](../examples/migrations) for schema evolution
-- Dive into the [CLI](../cli) for automation
+- Explore [validation system](../features/validation)
+- Check out the [CLI tools](../cli) for automation
+- See [performance tips](../reference/performance) for optimization
+
+## Community and Support
+
+- **GitHub**: [github.com/gooferOrm/goofer](https://github.com/gooferOrm/goofer)
+- **Issues**: Report bugs and request features
+- **Discussions**: Ask questions and share tips
+- **Examples**: Complete working examples in the repository
 
 Goofer ORM is designed to make working with databases in Go a pleasant experience. Enjoy building with type-safe, relationship-aware database access!
