@@ -24,7 +24,22 @@ go get github.com/gooferOrm/goofer
 
 ## Usage
 
-Goofer offers two primary usage flows: a code-first manual approach and a CLI-driven approach for rapid development. To understand which flow is right for you, please refer to our [Usage Flow Guide](./docs/USAGE_FLOW.md).
+Goofer offers multiple approaches to fit your development style and project needs:
+
+### 🚀 **[Complete Tutorial](./website/content/docs/getting-started/complete-tutorial.md)** 
+Build a full blog application from scratch - covers all features in a real-world context.
+
+### 📚 **[Comprehensive Guide](./docs/COMPREHENSIVE_GUIDE.md)** 
+47,000+ word deep dive covering every aspect from basic usage to production deployment.
+
+### ⚡ **[Client & Engine Guide](./docs/CLIENT_ENGINE_GUIDE.md)**
+Simplified usage patterns for both high-level convenience and low-level control.
+
+### 🔄 **[Migration Guide](./docs/MIGRATION_GUIDE.md)**
+Complete guide to database migrations from development to production.
+
+### 📖 **[Usage Flow Guide](./docs/USAGE_FLOW.md)**
+Understand which approach fits your project best.
 
 ## Quick Start
 
@@ -109,22 +124,72 @@ func main() {
 
 ## Examples
 
-The repository includes several examples demonstrating different features:
+The repository includes comprehensive examples demonstrating all features:
 
-- **Basic**: Simple CRUD operations with SQLite
-- **MySQL**: U`sing Goofer with MySQL
-- **PostgreSQL**: Using Goofer with PostgreSQL
-- **Relationships**: Working with one-to-one, one-to-many, and many-to-many relationships
-- **Migrations**: Evolving your database schema over time
-- **Validation**: Entity validation using struct tags and custom validation logic
-- **Hooks**: Using lifecycle hooks for automated tasks
-- **Custom Queries**: Advanced querying with raw SQL and aggregate functions
+### 🎯 **Working Examples** (Ready to Run)
+- **[Basic CRUD](./examples/basic/)**: Fundamental operations with SQLite
+- **[Client Usage](./examples/client/)**: Simplified high-level API
+- **[Custom Queries](./examples/custom_queries/)**: Advanced querying and aggregation
+- **[Hooks & Lifecycle](./examples/hooks/)**: Data transformation and audit logging
+- **[Validation](./examples/validation/)**: Data integrity and error handling
+- **[CLI Application](./examples/cli_app/)**: Complete command-line interface
+- **[Todo App](./examples/todo/)**: Real-world application example
 
-Check the `examples` directory for complete code samples.
+### 🛠️ **Database-Specific Examples**
+- **[MySQL](./examples/mysql/)**: MySQL-specific features and configuration
+- **[PostgreSQL](./examples/postgres/)**: PostgreSQL integration and advanced features
 
-## Documentation
+### 📚 **Comprehensive Learning**
+- **[All Examples](./examples/)**: Browse all examples on GitHub
+- **[Examples Documentation](./website/content/docs/examples/)**: Detailed explanations
+- **[Tutorial](./website/content/docs/getting-started/complete-tutorial.md)**: Build a blog from scratch
 
-### Entity Definition
+To run any example:
+```bash
+cd examples/basic  # or any other example
+go run main.go
+```
+
+## 📖 Documentation
+
+Goofer ORM provides comprehensive documentation to help you master every aspect:
+
+### 🎯 **Getting Started**
+- **[Quick Start Guide](./website/content/docs/getting-started/)**: Get running in minutes
+- **[Complete Tutorial](./website/content/docs/getting-started/complete-tutorial.md)**: Build a real blog application
+- **[Usage Flow Guide](./docs/USAGE_FLOW.md)**: Choose the right approach for your project
+
+### 📚 **Deep Dive Guides**
+- **[Comprehensive Guide](./docs/COMPREHENSIVE_GUIDE.md)**: 47,000+ word complete reference
+  - Entity system and schema management
+  - Repository patterns and query building
+  - Relationships and eager loading
+  - Validation and lifecycle hooks
+  - Performance optimization
+  - Production best practices
+
+- **[Migration Guide](./docs/MIGRATION_GUIDE.md)**: Complete migration system
+  - Schema versioning and evolution
+  - Production deployment strategies
+  - Zero-downtime migrations
+  - Rollback procedures
+
+- **[Client & Engine Guide](./docs/CLIENT_ENGINE_GUIDE.md)**: Usage patterns
+  - High-level client interface
+  - Low-level engine control
+  - Configuration and setup
+  - Testing strategies
+
+### 🔧 **Feature Documentation**
+- **[Entity System](./website/content/docs/features/entity-system.md)**: Define your data models
+- **[Repository Pattern](./website/content/docs/features/repository-pattern.md)**: Type-safe database operations
+- **[Relationships](./website/content/docs/features/relation-mapping.md)**: Working with related data
+- **[Validation](./website/content/docs/features/validation.md)**: Data integrity and validation
+- **[Hooks](./website/content/docs/features/hooks.md)**: Lifecycle events and automation
+
+### 💡 **Quick Reference**
+
+#### Entity Definition
 
 Entities are defined as Go structs with ORM tags:
 
