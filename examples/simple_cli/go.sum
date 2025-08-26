@@ -1,0 +1,4 @@
+github.com/gooferOrm/goofer v0.1.0 h1:a4mcTz7IIl1B8KgLgrO2IOeqVfgG2xzL9OuikkygFFQ=
+github.com/gooferOrm/goofer v0.1.0/go.mod h1:yTPZpQ2s3FlIgIzHtp49KaaUTQIqCCTrBsJszvBGKcY=
+github.com/mattn/go-sqlite3 v1.14.28 h1:ThEiQrnbtumT+QMknw63Befp/ce/nUPgBPMlRFEum7A=
+github.com/mattn/go-sqlite3 v1.14.28/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
